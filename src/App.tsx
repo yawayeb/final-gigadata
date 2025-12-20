@@ -13,6 +13,7 @@ import WithdrawalsPage from "./pages/WithdrawalsPage";
 import PerformancePage from "./pages/PerformancePage";
 import DevelopersPage from "./pages/DevelopersPage";
 import AffiliatePage from "./pages/AffiliatePage";
+import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
 import Login from "./pages/Login";
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/developers/apis" element={<DevelopersPage />} />
               <Route path="/affiliate" element={<AffiliatePage />} />
               <Route path="/services/affiliate-program" element={<AffiliatePage />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Route>
 
