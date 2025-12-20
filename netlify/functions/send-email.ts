@@ -2,7 +2,8 @@ import { Handler } from '@netlify/functions';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const ADMIN_EMAIL = 'yawayaw098@gmail.com'; // Admin email based on context or common usage
+const ADMIN_EMAIL = 'datagiga0@gmail.com';
+const SENDER_EMAIL = 'GigaData <noreply@gigadata.store>';
 
 export const handler: Handler = async (event) => {
     if (event.httpMethod !== 'POST') {
