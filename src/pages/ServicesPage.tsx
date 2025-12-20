@@ -17,6 +17,8 @@ import { usePaystackPayment } from "react-paystack";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/lib/supabase";
 
+import { triggerEmail } from "@/lib/email";
+
 const serviceNames: Record<string, string> = {
   "at-ishare": "AT iShare Business",
   "mtn-up2u": "MTN UP2U Business",
@@ -62,6 +64,15 @@ const ServicesPage = () => {
         });
 
       if (error) throw error;
+
+      // Trigger Purchase Email
+      await triggerEmail({
+        type: 'purchase',
+        email: profile.email,
+        name: profile.full_name,
+        amount: bundle.price,
+        details: `${bundle.name} (${bundle.size}) for ${phoneNumber}`
+      });
 
       toast({
         title: "Payment Successful!",

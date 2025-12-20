@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { usePaystackPayment } from "react-paystack";
 
+import { triggerEmail } from "@/lib/email";
+
 const AffiliatePage = () => {
   const { toast } = useToast();
   const { profile, loading, refresh: refreshProfile } = useProfile();
@@ -74,6 +76,14 @@ const AffiliatePage = () => {
         });
 
       if (transError) throw transError;
+
+      // 3. Trigger Affiliate Activation Email
+      await triggerEmail({
+        type: 'affiliate',
+        email: profile.email,
+        name: profile.full_name,
+        amount: 50.00
+      });
 
       toast({
         title: "Welcome to the Affiliate Program!",

@@ -11,6 +11,8 @@ import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
+import { triggerEmail } from "@/lib/email";
+
 const statusStyles = {
   success: { icon: CheckCircle, color: "text-accent", bg: "bg-accent/10" },
   pending: { icon: Clock, color: "text-yellow-500", bg: "bg-yellow-500/10" },
@@ -63,6 +65,14 @@ const WithdrawalsPage = () => {
         });
 
       if (error) throw error;
+
+      // Trigger Withdrawal Email
+      await triggerEmail({
+        type: 'withdrawal',
+        email: profile.email,
+        name: profile.full_name,
+        amount: withdrawAmount
+      });
 
       toast({
         title: "Withdrawal Requested",

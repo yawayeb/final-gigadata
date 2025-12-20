@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Layout, Lock, Mail, User, UserPlus } from "lucide-react";
 
+import { triggerEmail } from "@/lib/email";
+
 const Signup = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -34,6 +36,13 @@ const Signup = () => {
             });
 
             if (signUpError) throw signUpError;
+
+            // 2. Trigger Welcome Email
+            await triggerEmail({
+                type: 'signup',
+                email,
+                name: fullName
+            });
 
             toast({
                 title: "Account created!",
