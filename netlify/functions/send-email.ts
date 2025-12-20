@@ -35,7 +35,7 @@ export const handler: Handler = async (event) => {
 
                 // Notify Admin
                 await resend.emails.send({
-                    from: 'Edu-Hub <onboarding@resend.dev>',
+                    from: SENDER_EMAIL,
                     to: ADMIN_EMAIL,
                     subject: 'New User Signup',
                     html: `<p>A new user has signed up: <b>${name}</b> (${email})</p>`,
@@ -56,7 +56,7 @@ export const handler: Handler = async (event) => {
 
                 // Notify Admin
                 await resend.emails.send({
-                    from: 'Edu-Hub <onboarding@resend.dev>',
+                    from: SENDER_EMAIL,
                     to: ADMIN_EMAIL,
                     subject: 'New Purchase Entry',
                     html: `<p>User <b>${name}</b> (${email}) purchased <b>${details}</b> for GH¢${amount}.</p>`,
@@ -77,7 +77,7 @@ export const handler: Handler = async (event) => {
 
                 // Notify Admin
                 await resend.emails.send({
-                    from: 'Edu-Hub <onboarding@resend.dev>',
+                    from: SENDER_EMAIL,
                     to: ADMIN_EMAIL,
                     subject: 'New Withdrawal Request',
                     html: `<p>User <b>${name}</b> (${email}) requested a withdrawal of GH¢${amount}.</p>`,
@@ -98,7 +98,7 @@ export const handler: Handler = async (event) => {
 
                 // Notify Admin
                 await resend.emails.send({
-                    from: 'Edu-Hub <onboarding@resend.dev>',
+                    from: SENDER_EMAIL,
                     to: ADMIN_EMAIL,
                     subject: 'New Affiliate Joined',
                     html: `<p>User <b>${name}</b> (${email}) has paid for the affiliate program activation (GH¢50).</p>`,
@@ -110,7 +110,7 @@ export const handler: Handler = async (event) => {
         }
 
         const { data, error } = await resend.emails.send({
-            from: 'Edu-Hub <onboarding@resend.dev>',
+            from: SENDER_EMAIL,
             to: [email],
             subject: subject,
             html: html,
