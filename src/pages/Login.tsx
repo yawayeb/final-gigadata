@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Layout, Lock, Mail } from "lucide-react";
+import { Layout, Lock, Mail, AlertCircle } from "lucide-react";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -56,6 +56,17 @@ const Login = () => {
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
 
             <div className="w-full max-w-md relative z-10 animate-fade-in">
+                {/* Migration Notice */}
+                <div className="mb-6 bg-accent/10 border border-accent/20 rounded-2xl p-4 flex gap-3 items-start">
+                    <AlertCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                    <div>
+                        <p className="text-sm font-semibold text-foreground">Migration Notice</p>
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                            Due to our new Affiliate Program, users from the old system are required to <Link to="/signup" className="text-primary font-bold hover:underline">sign up again</Link> to continue.
+                        </p>
+                    </div>
+                </div>
+
                 <div className="text-center mb-8">
                     <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/20">
                         <Layout className="w-8 h-8 text-primary" />
