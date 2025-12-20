@@ -15,6 +15,10 @@ import DevelopersPage from "./pages/DevelopersPage";
 import AffiliatePage from "./pages/AffiliatePage";
 import NotFound from "./pages/NotFound";
 
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -25,20 +29,26 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/services/:service" element={<ServicesPage />} />
-            <Route path="/credits" element={<CreditsPage />} />
-            <Route path="/earnings" element={<EarningsPage />} />
-            <Route path="/withdrawals" element={<WithdrawalsPage />} />
-            <Route path="/performance" element={<PerformancePage />} />
-            <Route path="/performance/sales" element={<PerformancePage />} />
-            <Route path="/developers" element={<DevelopersPage />} />
-            <Route path="/developers/apis" element={<DevelopersPage />} />
-            <Route path="/affiliate" element={<AffiliatePage />} />
-            <Route path="/services/affiliate-program" element={<AffiliatePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/services" element={<ServicesPage />} />
+              <Route path="/services/:service" element={<ServicesPage />} />
+              <Route path="/credits" element={<CreditsPage />} />
+              <Route path="/earnings" element={<EarningsPage />} />
+              <Route path="/withdrawals" element={<WithdrawalsPage />} />
+              <Route path="/performance" element={<PerformancePage />} />
+              <Route path="/performance/sales" element={<PerformancePage />} />
+              <Route path="/developers" element={<DevelopersPage />} />
+              <Route path="/developers/apis" element={<DevelopersPage />} />
+              <Route path="/affiliate" element={<AffiliatePage />} />
+              <Route path="/services/affiliate-program" element={<AffiliatePage />} />
+            </Route>
           </Route>
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

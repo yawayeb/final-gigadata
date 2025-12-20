@@ -6,6 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/lib/supabase";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   onMobileMenuToggle: () => void;
@@ -13,6 +16,14 @@ interface HeaderProps {
 }
 
 export const Header = ({ onMobileMenuToggle, onSidebarToggle }: HeaderProps) => {
+  const { profile } = useProfile();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
   return (
     <header className="h-16 bg-header border-b border-header/20 flex items-center justify-between px-4 lg:px-6">
       <div className="flex items-center gap-4">
@@ -63,14 +74,19 @@ export const Header = ({ onMobileMenuToggle, onSidebarToggle }: HeaderProps) => 
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                 <User className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="hidden sm:inline font-medium">Nana Yaw</span>
+              <span className="hidden sm:inline font-medium">
+                {profile?.full_name || "Guest"}
+              </span>
               <ChevronDown className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 bg-card">
-            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/dashboard")}>Dashboard</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={handleSignOut}
+            >
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>

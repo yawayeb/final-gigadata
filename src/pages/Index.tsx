@@ -1,7 +1,12 @@
 import { Navigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
-  return <Navigate to="/dashboard" replace />;
+  const { session, loading } = useAuth();
+
+  if (loading) return null;
+
+  return <Navigate to={session ? "/dashboard" : "/login"} replace />;
 };
 
 export default Index;

@@ -4,46 +4,34 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Wallet, Clock, CheckCircle, XCircle } from "lucide-react";
 import { useState } from "react";
+import { useProfile } from "@/hooks/useProfile";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { supabase } from "@/lib/supabase";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-interface Withdrawal {
-  id: string;
-  amount: string;
-  status: "completed" | "pending" | "failed";
-  date: string;
-  method: string;
-}
-
-const withdrawals: Withdrawal[] = [
-  {
-    id: "1",
-    amount: "15.00",
-    status: "completed",
-    date: "Dec 15, 2025",
-    method: "Mobile Money",
-  },
-  {
-    id: "2",
-    amount: "10.00",
-    status: "pending",
-    date: "Dec 19, 2025",
-    method: "Mobile Money",
-  },
-];
-
 const statusStyles = {
-  completed: { icon: CheckCircle, color: "text-accent", bg: "bg-accent/10" },
+  success: { icon: CheckCircle, color: "text-accent", bg: "bg-accent/10" },
   pending: { icon: Clock, color: "text-yellow-500", bg: "bg-yellow-500/10" },
   failed: { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" },
 };
 
 const WithdrawalsPage = () => {
   const { toast } = useToast();
+  const { profile } = useProfile();
+  const { transactions, loading: transLoading, refresh: refreshTrans } = useTransactions(50);
+  const { stats, refresh: refreshStats } = useDashboardStats();
   const [amount, setAmount] = useState("");
-  const availableBalance = 5.6;
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleWithdraw = () => {
+  const availableBalance = profile ? (Number(profile.total_earnings) - stats.totalWithdrawn) : 0;
+  const withdrawalHistory = transactions.filter(t => t.type === 'withdrawal');
+
+  const handleWithdraw = async () => {
     const withdrawAmount = parseFloat(amount);
+    if (!profile) return;
+
     if (!amount || withdrawAmount <= 0) {
       toast({
         title: "Invalid Amount",
@@ -56,17 +44,42 @@ const WithdrawalsPage = () => {
     if (withdrawAmount > availableBalance) {
       toast({
         title: "Insufficient Balance",
-        description: "You don't have enough available balance.",
+        description: "You don't have enough available earnings.",
         variant: "destructive",
       });
       return;
     }
 
-    toast({
-      title: "Withdrawal Requested",
-      description: `GH¢${amount} withdrawal has been submitted for processing.`,
-    });
-    setAmount("");
+    setIsProcessing(true);
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: profile.id,
+          amount: withdrawAmount,
+          type: 'withdrawal',
+          status: 'pending',
+          description: `Withdrawal request for GH¢${withdrawAmount}`,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Withdrawal Requested",
+        description: `GH¢${amount} withdrawal has been submitted for processing.`,
+      });
+      setAmount("");
+      refreshTrans();
+      refreshStats();
+    } catch (error: any) {
+      toast({
+        title: "Request Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -119,9 +132,9 @@ const WithdrawalsPage = () => {
               variant="gradient"
               className="w-full"
               onClick={handleWithdraw}
-              disabled={availableBalance <= 0}
+              disabled={availableBalance <= 0 || isProcessing}
             >
-              Withdraw Now
+              {isProcessing ? "Processing..." : "Withdraw Now"}
             </Button>
           </div>
         </div>
@@ -135,43 +148,49 @@ const WithdrawalsPage = () => {
           </h3>
         </div>
         <div className="divide-y divide-border">
-          {withdrawals.map((withdrawal, index) => {
-            const statusConfig = statusStyles[withdrawal.status];
-            const StatusIcon = statusConfig.icon;
-            return (
-              <div
-                key={withdrawal.id}
-                className="p-4 flex items-center gap-4 animate-fade-in"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
+          {withdrawalHistory.length === 0 ? (
+            <div className="p-12 text-center text-muted-foreground">
+              No withdrawal history found.
+            </div>
+          ) : (
+            withdrawalHistory.map((withdrawal, index) => {
+              const statusConfig = statusStyles[withdrawal.status as keyof typeof statusStyles] || statusStyles.pending;
+              const StatusIcon = statusConfig.icon;
+              return (
                 <div
-                  className={cn(
-                    "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
-                    statusConfig.bg
-                  )}
+                  key={withdrawal.id}
+                  className="p-4 flex items-center gap-4 animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <StatusIcon className={cn("w-5 h-5", statusConfig.color)} />
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
+                      statusConfig.bg
+                    )}
+                  >
+                    <StatusIcon className={cn("w-5 h-5", statusConfig.color)} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-card-foreground">
+                      GH¢{withdrawal.amount}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Mobile Money • {format(new Date(withdrawal.created_at), 'MMM dd, yyyy')}
+                    </p>
+                  </div>
+                  <span
+                    className={cn(
+                      "px-3 py-1 rounded-full text-xs font-medium capitalize",
+                      statusConfig.bg,
+                      statusConfig.color
+                    )}
+                  >
+                    {withdrawal.status}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-card-foreground">
-                    GH¢{withdrawal.amount}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {withdrawal.method} • {withdrawal.date}
-                  </p>
-                </div>
-                <span
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-medium capitalize",
-                    statusConfig.bg,
-                    statusConfig.color
-                  )}
-                >
-                  {withdrawal.status}
-                </span>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
     </div>

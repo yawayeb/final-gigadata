@@ -11,39 +11,11 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { useDataPackages } from "@/hooks/useDataPackages";
 
-interface DataBundle {
-  id: string;
-  name: string;
-  size: string;
-  price: string;
-  validity: string;
-}
-
-const serviceBundles: Record<string, DataBundle[]> = {
-  "at-ishare": [
-    { id: "1", name: "1GB Bundle", size: "1GB", price: "4.00", validity: "7 Days" },
-    { id: "2", name: "2GB Bundle", size: "2GB", price: "7.00", validity: "14 Days" },
-    { id: "3", name: "5GB Bundle", size: "5GB", price: "15.00", validity: "30 Days" },
-    { id: "4", name: "10GB Bundle", size: "10GB", price: "28.00", validity: "30 Days" },
-  ],
-  "mtn-up2u": [
-    { id: "1", name: "1GB UP2U", size: "1GB", price: "5.00", validity: "7 Days" },
-    { id: "2", name: "3GB UP2U", size: "3GB", price: "12.00", validity: "14 Days" },
-    { id: "3", name: "6GB UP2U", size: "6GB", price: "22.00", validity: "30 Days" },
-    { id: "4", name: "12GB UP2U", size: "12GB", price: "40.00", validity: "30 Days" },
-  ],
-  "at-bigtime": [
-    { id: "1", name: "2GB Big Time", size: "2GB", price: "8.00", validity: "14 Days" },
-    { id: "2", name: "5GB Big Time", size: "5GB", price: "18.00", validity: "30 Days" },
-    { id: "3", name: "10GB Big Time", size: "10GB", price: "32.00", validity: "30 Days" },
-  ],
-  "telecel": [
-    { id: "1", name: "1GB Telecel", size: "1GB", price: "4.50", validity: "7 Days" },
-    { id: "2", name: "3GB Telecel", size: "3GB", price: "11.00", validity: "14 Days" },
-    { id: "3", name: "7GB Telecel", size: "7GB", price: "24.00", validity: "30 Days" },
-  ],
-};
+import { usePaystackPayment } from "react-paystack";
+import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/lib/supabase";
 
 const serviceNames: Record<string, string> = {
   "at-ishare": "AT iShare Business",
@@ -55,13 +27,76 @@ const serviceNames: Record<string, string> = {
 const ServicesPage = () => {
   const { service } = useParams();
   const { toast } = useToast();
+  const { profile } = useProfile();
   const [selectedBundle, setSelectedBundle] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
-  const bundles = service ? serviceBundles[service] || [] : [];
+  const { packages, loading } = useDataPackages(service);
   const serviceName = service ? serviceNames[service] || "Data Services" : "Data Services";
 
+  const bundle = packages.find((b) => b.id === selectedBundle);
+
+  const config = {
+    reference: `bundle_${new Date().getTime()}`,
+    email: profile?.email || "",
+    amount: (bundle?.price || 0) * 100, // Paystack amount is in pesewas
+    publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
+    currency: "GHS",
+  };
+
+  const initializePayment = usePaystackPayment(config);
+
+  const onSuccess = async (reference: any) => {
+    try {
+      if (!profile || !bundle) return;
+
+      const { error } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: profile.id,
+          amount: bundle.price,
+          type: 'purchase',
+          status: 'success',
+          description: `Purchased ${bundle.name} (${bundle.size}) for ${phoneNumber}`,
+          reference: reference.reference
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Payment Successful!",
+        description: `${bundle.size} data bundle for ${phoneNumber} has been ordered.`,
+      });
+
+      setSelectedBundle("");
+      setPhoneNumber("");
+    } catch (error: any) {
+      toast({
+        title: "Transaction Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const onClose = () => {
+    toast({
+      title: "Payment Cancelled",
+      description: "The transaction was not completed.",
+      variant: "destructive",
+    });
+  };
+
   const handlePurchase = () => {
+    if (!profile?.email) {
+      toast({
+        title: "Profile Loading",
+        description: "Please wait for your profile to load.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!selectedBundle || !phoneNumber) {
       toast({
         title: "Missing Information",
@@ -71,11 +106,16 @@ const ServicesPage = () => {
       return;
     }
 
-    const bundle = bundles.find((b) => b.id === selectedBundle);
-    toast({
-      title: "Order Placed!",
-      description: `${bundle?.size} data bundle for ${phoneNumber} is being processed.`,
-    });
+    if (!import.meta.env.VITE_PAYSTACK_PUBLIC_KEY) {
+      toast({
+        title: "Configuration Error",
+        description: "Paystack Public Key is missing in .env file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    initializePayment({ onSuccess, onClose });
   };
 
   if (!service) {
@@ -130,10 +170,10 @@ const ServicesPage = () => {
             <Label htmlFor="bundle">Select Bundle</Label>
             <Select value={selectedBundle} onValueChange={setSelectedBundle}>
               <SelectTrigger className="mt-1.5">
-                <SelectValue placeholder="Choose a data bundle" />
+                <SelectValue placeholder={loading ? "Loading packages..." : "Choose a data bundle"} />
               </SelectTrigger>
               <SelectContent className="bg-card">
-                {bundles.map((bundle) => (
+                {packages.map((bundle) => (
                   <SelectItem key={bundle.id} value={bundle.id}>
                     <div className="flex justify-between items-center w-full gap-4">
                       <span>{bundle.name}</span>
@@ -150,7 +190,7 @@ const ServicesPage = () => {
           {selectedBundle && (
             <div className="bg-muted rounded-xl p-4 animate-fade-in">
               {(() => {
-                const bundle = bundles.find((b) => b.id === selectedBundle);
+                const bundle = packages.find((b) => b.id === selectedBundle);
                 return bundle ? (
                   <div className="flex justify-between items-center">
                     <div>
@@ -185,8 +225,9 @@ const ServicesPage = () => {
             size="xl"
             className="w-full"
             onClick={handlePurchase}
+            disabled={loading}
           >
-            Purchase Bundle
+            {loading ? "Loading..." : "Purchase Bundle"}
           </Button>
         </div>
       </div>
