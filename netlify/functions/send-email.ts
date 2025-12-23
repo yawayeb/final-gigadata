@@ -80,7 +80,16 @@ export const handler: Handler = async (event) => {
                     </table>
                 `);
                 adminSubject = 'Withdrawal Action Required';
-                adminHtml = `<p><b>${name}</b> requested GH¢${amount}.</p>`;
+                adminHtml = renderEmail('Withdrawal Request', `
+                    <p>A withdrawal request has been submitted and requires your attention:</p>
+                    <table class="table">
+                        <tr><td>Name</td><td><b>${name}</b></td></tr>
+                        <tr><td>Email</td><td>${email}</td></tr>
+                        <tr><td>Amount</td><td><b style="color:#10b981">GH¢${amount}</b></td></tr>
+                        <tr><td>Status</td><td><span style="color:#f59e0b">Pending</span></td></tr>
+                    </table>
+                    <p style="margin-top:20px;"><b>Action Required:</b> Process this Mobile Money payout within 12-24 hours.</p>
+                `);
                 break;
 
             case 'affiliate':

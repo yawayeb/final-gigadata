@@ -44,6 +44,35 @@ const ServicesPage = () => {
     amount: (bundle?.price || 0) * 100, // Paystack amount is in pesewas
     publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
     currency: "GHS",
+    metadata: {
+      custom_fields: [
+        {
+          display_name: "Customer Email",
+          variable_name: "customer_email",
+          value: profile?.email || "",
+        },
+        {
+          display_name: "Phone Number",
+          variable_name: "customer_phone",
+          value: phoneNumber,
+        },
+        {
+          display_name: "Product",
+          variable_name: "product",
+          value: bundle?.name || "",
+        },
+        {
+          display_name: "Bundle Size",
+          variable_name: "bundle_size",
+          value: bundle?.size || "",
+        },
+        {
+          display_name: "Validity",
+          variable_name: "validity",
+          value: bundle?.validity || "",
+        },
+      ],
+    },
   };
 
   const initializePayment = usePaystackPayment(config);

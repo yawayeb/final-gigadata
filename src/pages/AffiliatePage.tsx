@@ -38,6 +38,25 @@ const AffiliatePage = () => {
     amount: 50 * 100, // 50 GHS in pesewas
     publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
     currency: "GHS",
+    metadata: {
+      custom_fields: [
+        {
+          display_name: "Customer Email",
+          variable_name: "customer_email",
+          value: profile?.email || "",
+        },
+        {
+          display_name: "Customer Name",
+          variable_name: "customer_name",
+          value: profile?.full_name || "",
+        },
+        {
+          display_name: "Product",
+          variable_name: "product",
+          value: "Affiliate Program Registration",
+        },
+      ],
+    },
   };
 
   const initializePayment = usePaystackPayment(config);
@@ -202,6 +221,14 @@ const AffiliatePage = () => {
         });
 
       if (error) throw error;
+
+      // Trigger Withdrawal Email
+      await triggerEmail({
+        type: 'withdrawal',
+        email: profile.email,
+        name: profile.full_name,
+        amount: available
+      });
 
       toast({
         title: "Withdrawal Initiated",
