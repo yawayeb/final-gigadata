@@ -45,21 +45,6 @@ const navItems: NavItem[] = [
       { title: "Telecel Business", href: "/services/telecel" },
     ],
   },
-  { title: "Credits & Debits", href: "/credits", icon: CreditCard },
-  { title: "Earnings", href: "/earnings", icon: DollarSign },
-  { title: "Withdrawals", href: "/withdrawals", icon: Wallet },
-  {
-    title: "Performance",
-    href: "/performance",
-    icon: TrendingUp,
-    children: [{ title: "Sales Performance", href: "/performance/sales" }],
-  },
-  {
-    title: "Developers",
-    href: "/developers",
-    icon: Code,
-    children: [{ title: "APIs & Webhooks", href: "/developers/apis" }],
-  },
   { title: "Affiliate Program", href: "/affiliate", icon: Users },
 ];
 

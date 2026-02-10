@@ -7,11 +7,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import ServicesPage from "./pages/ServicesPage";
-import CreditsPage from "./pages/CreditsPage";
-import EarningsPage from "./pages/EarningsPage";
-import WithdrawalsPage from "./pages/WithdrawalsPage";
-import PerformancePage from "./pages/PerformancePage";
-import DevelopersPage from "./pages/DevelopersPage";
+
 import AffiliatePage from "./pages/AffiliatePage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
@@ -38,13 +34,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/services" element={<ServicesPage />} />
               <Route path="/services/:service" element={<ServicesPage />} />
-              <Route path="/credits" element={<CreditsPage />} />
-              <Route path="/earnings" element={<EarningsPage />} />
-              <Route path="/withdrawals" element={<WithdrawalsPage />} />
-              <Route path="/performance" element={<PerformancePage />} />
-              <Route path="/performance/sales" element={<PerformancePage />} />
-              <Route path="/developers" element={<DevelopersPage />} />
-              <Route path="/developers/apis" element={<DevelopersPage />} />
+
               <Route path="/affiliate" element={<AffiliatePage />} />
               <Route path="/services/affiliate-program" element={<AffiliatePage />} />
               <Route path="/profile" element={<ProfilePage />} />

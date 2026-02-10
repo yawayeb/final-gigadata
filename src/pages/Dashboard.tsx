@@ -1,7 +1,7 @@
 import { ShoppingCart, Package, Users, Coins } from "lucide-react";
 import { HeroCard } from "@/components/dashboard/HeroCard";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { AccountOverviewCard } from "@/components/dashboard/AccountOverviewCard";
+import { SupportCard } from "@/components/dashboard/SupportCard";
 import { RecentTransactionsTable } from "@/components/dashboard/RecentTransactionsTable";
 import { SalesChart } from "@/components/dashboard/SalesChart";
 import { SalesPointsCard } from "@/components/dashboard/SalesPointsCard";
@@ -52,14 +52,7 @@ const Dashboard = () => {
         </div>
         <div>
           {profile?.is_affiliate ? (
-            <AccountOverviewCard
-              recentTopUp="N/A" // This could be fetched from transactions
-              lastLogin="Real-time Active"
-              lastCommission="0"
-              device="Active Device"
-              location="GH"
-              ipAddress="Connected"
-            />
+            <SupportCard />
           ) : (
             <AffiliateLockedCard />
           )}
@@ -96,14 +89,7 @@ const Dashboard = () => {
 
       {/* Account Overview & Transactions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AccountOverviewCard
-          recentTopUp="0.00"
-          lastLogin="Connected"
-          lastCommission="0"
-          device="Active Session"
-          location="GH"
-          ipAddress="Encrypted"
-        />
+        <SupportCard />
         <RecentTransactionsTable transactions={mappedTransactions} />
       </div>
 
