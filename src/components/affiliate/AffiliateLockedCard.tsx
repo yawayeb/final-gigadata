@@ -6,9 +6,9 @@ export const AffiliateLockedCard = () => {
   const navigate = useNavigate();
 
   const benefits = [
-    { icon: Wifi, text: "1GB Free Data every month" },
-    { icon: DollarSign, text: "Real commission earnings" },
-    { icon: RefreshCw, text: "Earn from referrals & sales" },
+    { icon: Wifi, text: "FREE 2GB Data every month" },
+    { icon: DollarSign, text: "Access to Premium Digital Services" },
+    { icon: RefreshCw, text: "AFA, WAEC, Social Media services" },
   ];
 
   return (
@@ -19,16 +19,16 @@ export const AffiliateLockedCard = () => {
         </div>
         <div>
           <h3 className="font-display font-semibold text-lg text-card-foreground">
-            Join the Affiliate Program
+            Giga Data Affiliate Program
           </h3>
           <p className="text-sm text-muted-foreground">
-            One-time fee: GH¢50
+            Yearly plan: ₵150 / year
           </p>
         </div>
       </div>
 
       <p className="text-sm text-muted-foreground mb-4">
-        Unlock commissions, earn weekly income, and get free data by becoming a partner.
+        Subscribe for ₵150/year and get 2GB free data monthly plus access to premium digital services.
       </p>
 
       <div className="space-y-3 mb-6">

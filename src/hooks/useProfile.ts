@@ -9,6 +9,7 @@ export interface Profile {
     balance: number;
     total_earnings: number;
     is_affiliate: boolean;
+    affiliate_expires_at: string | null;
     referral_code: string;
     total_sales: number;
     total_orders: number;

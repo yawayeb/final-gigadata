@@ -10,6 +10,7 @@ import ServicesPage from "./pages/ServicesPage";
 
 import AffiliatePage from "./pages/AffiliatePage";
 import ProfilePage from "./pages/ProfilePage";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import NotFound from "./pages/NotFound";
 
 import Login from "./pages/Login";
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/affiliate" element={<AffiliatePage />} />
               <Route path="/services/affiliate-program" element={<AffiliatePage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
             </Route>
           </Route>
 
