@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Layout, Lock, Mail, AlertCircle } from "lucide-react";
+import { SystemNoticeBanner } from "@/components/SystemNoticeBanner";
+import { PublicNav } from "@/components/layout/PublicNav";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -50,12 +52,14 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden px-4">
-            {/* Background Decorations */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+            <SystemNoticeBanner />
+            <PublicNav />
+            <div className="flex-1 flex items-center justify-center px-4 py-8 relative">
+                <div className="absolute top-0 left-0 w-[40%] h-[40%] bg-primary/15 rounded-full blur-[100px] animate-pulse pointer-events-none" />
+                <div className="absolute bottom-0 right-0 w-[40%] h-[40%] bg-accent/15 rounded-full blur-[100px] animate-pulse pointer-events-none" style={{ animationDelay: '1s' }} />
 
-            <div className="w-full max-w-md relative z-10 animate-fade-in">
+                <div className="w-full max-w-md relative z-10 animate-fade-in">
                 {/* Migration Notice */}
                 <div className="mb-6 bg-accent/10 border border-accent/20 rounded-2xl p-4 flex gap-3 items-start">
                     <AlertCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
@@ -130,6 +134,7 @@ const Login = () => {
                         </Link>
                     </p>
                 </div>
+            </div>
             </div>
         </div>
     );

@@ -4,18 +4,18 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import Index from "./pages/Index";
+import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import ServicesPage from "./pages/ServicesPage";
-
 import AffiliatePage from "./pages/AffiliatePage";
 import ProfilePage from "./pages/ProfilePage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import WithdrawalsPage from "./pages/WithdrawalsPage";
 import NotFound from "./pages/NotFound";
-
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import AuthPage from "./pages/AuthPage";
+import ReorderPage from "./pages/ReorderPage";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -26,9 +26,11 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/login" element={<Navigate to="/auth?tab=login" replace />} />
+          <Route path="/signup" element={<Navigate to="/auth?tab=signup" replace />} />
+          <Route path="/reorder" element={<ReorderPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>
@@ -39,6 +41,7 @@ const App = () => (
               <Route path="/affiliate" element={<AffiliatePage />} />
               <Route path="/services/affiliate-program" element={<AffiliatePage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/withdrawals" element={<WithdrawalsPage />} />
               <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
             </Route>
           </Route>

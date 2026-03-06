@@ -2,15 +2,17 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
-
 import { BottomNav } from "./BottomNav";
+import { SystemNoticeBanner } from "@/components/SystemNoticeBanner";
 
 export const DashboardLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex w-full bg-background">
+    <div className="min-h-screen flex flex-col w-full bg-background">
+      <SystemNoticeBanner />
+      <div className="flex flex-1 min-h-0 min-w-0">
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -36,6 +38,7 @@ export const DashboardLayout = () => {
       </div>
 
       <BottomNav />
+      </div>
     </div>
   );
 };

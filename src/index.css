@@ -118,6 +118,15 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', sans-serif;
   }
+
+  /* Smooth scroll and tap highlight */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 @layer components {
@@ -159,6 +168,16 @@
 
   .shadow-elevated {
     box-shadow: var(--shadow-elevated);
+  }
+
+  /* Card hover for SaaS feel */
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-elevated hover:border-primary/20;
+  }
+
+  /* Form input focus ring */
+  .input-focus-ring {
+    @apply focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2;
   }
 }
 

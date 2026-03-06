@@ -47,6 +47,10 @@ DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles
     FOR UPDATE USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Allow profile creation on signup" ON public.profiles;
+CREATE POLICY "Allow profile creation on signup" ON public.profiles
+    FOR INSERT WITH CHECK (auth.uid() = id);
+
 -- Transactions Policies
 DROP POLICY IF EXISTS "Users can view own transactions" ON public.transactions;
 CREATE POLICY "Users can view own transactions" ON public.transactions

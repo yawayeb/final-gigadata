@@ -1,15 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
-const isValidUrl = supabaseUrl && supabaseUrl.startsWith('https://');
+const isPlaceholderUrl =
+  !supabaseUrl ||
+  supabaseUrl.startsWith('https://YOUR_') ||
+  supabaseUrl.includes('your_project_ref') ||
+  supabaseUrl.includes('placeholder');
 
-if (!isValidUrl || supabaseUrl.includes('YOUR_SUPABASE_URL')) {
-  console.warn('VITE_SUPABASE_URL is not configured or invalid in .env');
+const isValidUrl = supabaseUrl.startsWith('https://') && !isPlaceholderUrl;
+
+if (isPlaceholderUrl || !supabaseUrl) {
+  console.error(
+    '[Supabase] VITE_SUPABASE_URL is missing or still a placeholder. ' +
+    'Set it in .env to your project URL from Supabase Dashboard → Project Settings → API (e.g. https://xxxxx.supabase.co). ' +
+    'Then restart the dev server (npm run dev).'
+  );
 }
 
 export const supabase = createClient(
   isValidUrl ? supabaseUrl : 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder'
+  isValidUrl ? supabaseAnonKey : 'placeholder'
 );

@@ -18,7 +18,7 @@ const ProfilePage = () => {
                 title: "Signed out successfully",
                 description: "See you soon!",
             });
-            navigate("/login");
+            navigate("/");
         } catch (error: any) {
             toast({
                 title: "Sign out failed",
