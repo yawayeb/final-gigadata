@@ -16,6 +16,10 @@ import AuthPage from "./pages/AuthPage";
 import ReorderPage from "./pages/ReorderPage";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Navigate } from "react-router-dom";
+import MaintenancePage from "./pages/MaintenancePage";
+
+// Set to true to put the entire site in maintenance mode
+const MAINTENANCE_MODE = true;
 
 const queryClient = new QueryClient();
 
@@ -26,6 +30,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {MAINTENANCE_MODE ? (
+            <Route path="*" element={<MaintenancePage />} />
+          ) : (
+          <>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/login" element={<Navigate to="/auth?tab=login" replace />} />
@@ -46,7 +54,10 @@ const App = () => (
             </Route>
           </Route>
 
+          <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="*" element={<NotFound />} />
+          </>
+          )}
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
