@@ -43,7 +43,7 @@ const MaintenancePage = () => {
             Contact our admin directly on WhatsApp and we'll handle your order manually.
           </p>
           <a
-            href="https://wa.me/0530463170"
+            href="https://wa.me/233530463170"
             target="_blank"
             rel="noopener noreferrer"
             style={styles.whatsappBtn}

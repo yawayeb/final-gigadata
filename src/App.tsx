@@ -19,7 +19,7 @@ import { Navigate } from "react-router-dom";
 import MaintenancePage from "./pages/MaintenancePage";
 
 // Set to true to put the entire site in maintenance mode
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 const queryClient = new QueryClient();
 
