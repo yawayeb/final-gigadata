@@ -3,13 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useDataPackages } from "@/hooks/useDataPackages";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,8 +12,9 @@ import { supabase } from "@/lib/supabase";
 import { triggerEmail } from "@/lib/email";
 import { SystemNoticeBanner } from "@/components/SystemNoticeBanner";
 import { PublicNav } from "@/components/layout/PublicNav";
+import { PublicBottomNav } from "@/components/layout/PublicBottomNav";
 import { GuestCheckoutModal } from "@/components/checkout/GuestCheckoutModal";
-import { Wifi, Phone, ShoppingCart } from "lucide-react";
+import { Wifi, Phone, ShoppingCart, CheckCircle2 } from "lucide-react";
 
 const SERVICE_NAMES: Record<string, string> = {
   "at-ishare": "AT iShare Business",
@@ -41,6 +35,8 @@ export default function LandingPage() {
   const [paymentPending, setPaymentPending] = useState(false);
   const [guestUserAfterSignup, setGuestUserAfterSignup] = useState<{ id: string; email: string; full_name: string } | null>(null);
   const runPaymentAfterGuestRef = useRef(false);
+  const bundleSectionRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
 
   const { packages, loading } = useDataPackages(selectedNetwork || undefined);
   const bundle = packages.find((b) => b.id === selectedBundleId);
@@ -178,8 +174,26 @@ export default function LandingPage() {
     initializePayment({ onSuccess: onPaymentSuccess, onClose: onPaymentClose });
   }, [guestUserAfterSignup]);
 
+  // Scroll to bundle section when network is selected
+  const handleNetworkSelect = (key: string) => {
+    setSelectedNetwork(key);
+    setSelectedBundleId("");
+    setPhoneNumber("");
+    setTimeout(() => {
+      bundleSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
+
+  // Scroll to form when bundle is selected
+  const handleBundleSelect = (id: string) => {
+    setSelectedBundleId(id);
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 100);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background pb-20 lg:pb-0">
       <SystemNoticeBanner />
       <PublicNav />
 
@@ -194,18 +208,18 @@ export default function LandingPage() {
           </p>
         </section>
 
-        {/* Network selection */}
-        <section className="mb-10">
-          <h2 className="text-xl font-display font-semibold text-foreground mb-4">Select network</h2>
+        {/* Step 1 — Network selection */}
+        <section className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold flex-shrink-0">1</span>
+            <h2 className="text-xl font-display font-semibold text-foreground">Select network</h2>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {(Object.entries(SERVICE_NAMES) as [string, string][]).map(([key, name]) => (
               <button
                 key={key}
                 type="button"
-                onClick={() => {
-                  setSelectedNetwork(key);
-                  setSelectedBundleId("");
-                }}
+                onClick={() => handleNetworkSelect(key)}
                 className={`rounded-2xl border-2 p-6 text-left transition-all duration-200 flex items-center gap-4 ${
                   selectedNetwork === key
                     ? "border-primary bg-primary/10 shadow-md"
@@ -215,74 +229,106 @@ export default function LandingPage() {
                 <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <Wifi className="w-6 h-6 text-primary" />
                 </div>
-                <span className="font-semibold text-foreground">{name}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold text-foreground block">{name}</span>
+                  {selectedNetwork === key && (
+                    <span className="text-xs text-primary font-medium">Selected</span>
+                  )}
+                </div>
+                {selectedNetwork === key && (
+                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                )}
               </button>
             ))}
           </div>
         </section>
 
-        {/* Bundle + phone + CTA (when network selected) */}
+        {/* Step 2 — Bundle cards */}
         {selectedNetwork && (
-          <section className="max-w-lg mx-auto animate-fade-in">
-            <div className="bg-card rounded-2xl border border-border shadow-card p-6 space-y-6">
-              <h2 className="font-display font-semibold text-lg text-foreground">
-                {SERVICE_NAMES[selectedNetwork]}
+          <section ref={bundleSectionRef} className="mb-8 animate-fade-in scroll-mt-4">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold flex-shrink-0">2</span>
+              <h2 className="text-xl font-display font-semibold text-foreground">
+                Select a bundle — <span className="text-primary">{SERVICE_NAMES[selectedNetwork]}</span>
               </h2>
-
-              <div className="space-y-2">
-                <Label>Select bundle</Label>
-                <Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={loading ? "Loading…" : "Choose a bundle"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {packages.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        <div className="flex justify-between items-center w-full gap-4">
-                          <span>{p.name}</span>
-                          <span className="font-semibold text-primary">GH¢{p.price}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {bundle && (
-                <div className="rounded-xl bg-muted/50 p-4 flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold text-foreground">{bundle.size}</p>
-                    <p className="text-sm text-muted-foreground">Valid {bundle.validity}</p>
-                  </div>
-                  <p className="text-xl font-display font-bold text-primary">GH¢{bundle.price}</p>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="landing-phone">Recipient phone number</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="landing-phone"
-                    type="tel"
-                    placeholder="e.g. 0241234567"
-                    className="pl-10 h-12"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <Button
-                size="lg"
-                className="w-full gap-2 font-semibold"
-                onClick={handleProceedToPayment}
-                disabled={loading || !bundle || !phoneNumber.trim() || paymentPending}
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {paymentPending ? "Opening payment…" : "Proceed to payment"}
-              </Button>
             </div>
+
+            {loading ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="rounded-2xl border-2 border-border bg-card p-4 h-28 animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {packages.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => handleBundleSelect(p.id)}
+                    className={`rounded-2xl border-2 p-4 text-left transition-all duration-200 relative ${
+                      selectedBundleId === p.id
+                        ? "border-primary bg-primary/10 shadow-md"
+                        : "border-border bg-card hover:border-primary/50 hover:shadow-card"
+                    }`}
+                  >
+                    {selectedBundleId === p.id && (
+                      <CheckCircle2 className="w-4 h-4 text-primary absolute top-2 right-2" />
+                    )}
+                    <p className="font-bold text-foreground text-base">{p.size}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 mb-2">Valid {p.validity}</p>
+                    <p className="text-lg font-display font-bold text-primary">GH¢{p.price}</p>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Step 3 — Phone + Pay (appears under the bundle grid when a bundle is selected) */}
+            {bundle && (
+              <div ref={formRef} className="mt-5 animate-fade-in scroll-mt-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold flex-shrink-0">3</span>
+                  <h2 className="text-xl font-display font-semibold text-foreground">Enter beneficiary number</h2>
+                </div>
+
+                <div className="bg-card rounded-2xl border border-border shadow-card p-5 space-y-4 max-w-lg">
+                  {/* Selected bundle summary */}
+                  <div className="flex items-center justify-between rounded-xl bg-primary/5 border border-primary/20 px-4 py-3">
+                    <div>
+                      <p className="font-semibold text-foreground">{bundle.size}</p>
+                      <p className="text-sm text-muted-foreground">Valid {bundle.validity}</p>
+                    </div>
+                    <p className="text-xl font-display font-bold text-primary">GH¢{bundle.price}</p>
+                  </div>
+
+                  {/* Phone number */}
+                  <div className="space-y-2">
+                    <Label htmlFor="landing-phone">Recipient phone number</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input
+                        id="landing-phone"
+                        type="tel"
+                        placeholder="e.g. 0241234567"
+                        className="pl-10 h-12"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    size="lg"
+                    className="w-full gap-2 font-semibold"
+                    onClick={handleProceedToPayment}
+                    disabled={loading || !bundle || !phoneNumber.trim() || paymentPending}
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    {paymentPending ? "Opening payment…" : "Proceed to payment"}
+                  </Button>
+                </div>
+              </div>
+            )}
           </section>
         )}
 
@@ -295,6 +341,8 @@ export default function LandingPage() {
           </div>
         )}
       </main>
+
+      <PublicBottomNav />
 
       <GuestCheckoutModal
         open={guestModalOpen}

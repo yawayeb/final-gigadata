@@ -17,6 +17,7 @@ import ReorderPage from "./pages/ReorderPage";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Navigate } from "react-router-dom";
 import MaintenancePage from "./pages/MaintenancePage";
+import PublicAffiliatePage from "./pages/PublicAffiliatePage";
 
 // Set to true to put the entire site in maintenance mode
 const MAINTENANCE_MODE = false;
@@ -54,6 +55,7 @@ const App = () => (
             </Route>
           </Route>
 
+          <Route path="/affiliate-info" element={<PublicAffiliatePage />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="*" element={<NotFound />} />
           </>
